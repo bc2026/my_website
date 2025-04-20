@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import NamePlate from './components/NamePlate.vue'
 import ResumeItems from './components/ResumeItems.vue'
-import { Analytics } from "@vercel/analytics/react"
+// import { Analytics } from "@vercel/analytics/react"
 // import GlowingCursor from './components/GlowingCursor.vue'
 
 const x = ref(0)
