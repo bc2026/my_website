@@ -94,6 +94,28 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.nameplate-container {
+  padding: 1rem;
+  text-align: center;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.nameplate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.nameplate-text {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: white;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  word-break: break-word;
+}
 
 .dynamic-role {
   font-style: italic;
@@ -102,28 +124,30 @@ onMounted(() => {
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-.nameplate-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-
 .link-row {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-top: 1rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.absolute-arrow {
-  position: absolute;
-  bottom: 2rem; /* distance from bottom */
-  left: 50%;     /* center horizontally */
-  transform: translateX(-50%); /* perfect horizontal centering */
+.nameplate-link {
+  font-size: 1.25rem;
+  color: turquoise;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 
+.bounce-container {
+  margin-top: 2rem;
+}
+
+.absolute-arrow {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 .fade-enter-active,
 .fade-leave-active {
@@ -138,26 +162,22 @@ onMounted(() => {
   opacity: 1;
 }
 
-.nameplate-text {
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  color: white;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+@media (max-width: 600px) {
+  .nameplate-text {
+    font-size: 1.5rem;
+  }
+
+  .nameplate-link {
+    font-size: 1rem;
+  }
+
+  .absolute-arrow {
+    bottom: 1rem;
+  }
+
+  .link-row {
+    gap: 0.75rem;
+  }
 }
 
-.nameplate-link {
-  font-size: 1.5rem;
-  margin: 0.5rem 0;
-  color: turquoise;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-}
-
-.scroll-prompt {
-  margin-top: 2rem;
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: white;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-}
 </style>
