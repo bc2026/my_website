@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import NamePlate from './components/NamePlate.vue'
-import ResumeItems from './components/ResumeItems.vue'
+import Panel1 from './components/Panel1.vue'
+// import ResumeItems from './components/ResumeItems.vue'
 // import { Analytics } from "@vercel/analytics/react"
 // import GlowingCursor from './components/GlowingCursor.vue'
 
@@ -29,15 +29,35 @@ onUnmounted(() => window.removeEventListener('mousemove', move))
 </script>
 
 <template>
-  <div>
+  <div class="frame-scroll">
+    
     <!-- Background glow -->
     <div :style="bgStyle"></div>
-    <!-- Analytics -->
-    <Analytics/>
-    <!-- Main content -->
+    <!-- GlowingCursor -->
     <!-- <GlowingCursor /> -->
-    <NamePlate />
-    <ResumeItems />
+    <!-- Analytics -->
+    <!-- <Analytics/> -->
+    
+
+    <div class="content">
+      <div class="wrapper">
+      <!-- Frame 1 -->
+      <section class="panel panel1">
+                  <Panel1 />
+      </section>
+      </div>
+
+      <div class="wrapper">
+      <!-- Frame 2 -->
+      <section class="panel panel2">
+            <h3 style="text-align: center">Projects</h3>
+      <!-- Frame 2 End -->
+       </section>
+      </div>
+
+    </div>
+    
+
   </div>
 </template>
 
@@ -45,13 +65,49 @@ onUnmounted(() => window.removeEventListener('mousemove', move))
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  height: 100%;
+  width: 100%;
 }
 
-body {
-  background-color: #000;
-  color: white;
+.frame-scroll {
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
 }
+
+.frame-scroll > div[style] {
+  position: fixed !important; /* important to stay behind scroll content */
+  z-index: -1;
+}
+
+
+.content {
+  width: 100%;
+}
+
+.panel {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  scroll-snap-align: start;
+}
+
+
+
+.panel1 {
+  background-color: rgba(107, 105, 105, 0.5);
+}
+.panel2 { background: rgba(99, 52, 47, 0.4); }
+.panel3 { background: rgba(18, 68, 39, 0.4); }
+
 
 header {
   line-height: 1.5;
