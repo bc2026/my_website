@@ -1,61 +1,129 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { Presence } from '@motionone/vue'
+import BounceAnimation from './BounceAnimation.vue'
+import VueGlow from 'vue-glow';
+
+const roles = [
+  'Student',
+  'Software Engineer',
+  'Machine Learning Researcher',
+  'Full Stack Developer',
+  'AI Enthusiast',
+  'Data Scientist',  
+]
+
+const currentRole = ref(roles[0])
+let roleIndex = 0
 
 const show = ref(false)
+const showHi = ref(false)
+const showRole = ref(false)
 const showGitHub = ref(false)
 const showLinkedIn = ref(false)
 const showResume = ref(false)
-const showMore = ref(false)
+const showArrow = ref(false)
+const showDynamicRole = ref(true)
 
 onMounted(() => {
-  console.log('NamePlate mounted')
   show.value = true
+  setTimeout(() => (showHi.value = true), 1000)
+  setTimeout(() => (showRole.value = true), 3000)
+  setTimeout(() => (showGitHub.value = true), 3500)
+  setTimeout(() => (showLinkedIn.value = true), 4000)
+  setTimeout(() => (showResume.value = true), 4500)
+  setTimeout(() => (showArrow.value = true), 5000)
 
-  setTimeout(() => (showGitHub.value = true), 500)
-  setTimeout(() => (showLinkedIn.value = true), 1000)
-  setTimeout(() => (showResume.value = true), 1500)
-  setTimeout(() => (showMore.value = true), 2000)
+  setInterval(() => {
+    showDynamicRole.value = false
+    setTimeout(() => {
+      roleIndex = (roleIndex + 1) % roles.length
+      currentRole.value = roles[roleIndex]
+      showDynamicRole.value = true
+    }, 3000)
+  }, 3000)
 })
 </script>
 
 <template>
   <div class="nameplate-container">
-    <Transition name="fade" appear>
-      <h1 v-if="show" class="nameplate-text">Hi, I'm Bhagawat Chapagain</h1>
-    </Transition>
+    <div class="nameplate-content">
+      <Transition name="fade" appear>
+        <h1 v-if="showHi" class="nameplate-text">Hi, I'm Bhagawat Chapagain.</h1>
+      </Transition>
 
-    <Transition name="fade" appear>
-      <p v-if="showGitHub" class="nameplate-link">
-        <a href="https://github.com/bc2026" target="_blank" rel="noopener">GitHub</a>
-      </p>
-    </Transition>
+      <Transition name="fade" appear>
+        <h1 v-if="showRole" class="nameplate-text">a 20-year-old</h1>
+      </Transition>
 
-    <Transition name="fade" appear>
-      <p v-if="showLinkedIn" class="nameplate-link">
-        <a href="https://linkedin.com/in/bc2026" target="_blank" rel="noopener">LinkedIn</a>
-      </p>
-    </Transition>
+      <Transition name="fade" appear>
+  <h1 v-if="showRole" class="nameplate-text glow">
+    <span class="dynamic-role">{{ currentRole }}</span>
+  </h1>
+</Transition>
 
-    <Transition name="fade" appear>
-      <p v-if="showResume" class="nameplate-link">
-        <a href="https://your-resume-link.pdf" target="_blank" rel="noopener">Resume</a>
-      </p>
-    </Transition>
+      <div v-if="showGitHub || showLinkedIn || showResume" class="link-row">
+        <Transition name="fade" appear>
+          <p v-if="showGitHub" class="nameplate-link">
+            <a href="https://github.com/bc2026" target="_blank" rel="noopener">GitHub</a>
+          </p>
+        </Transition>
 
-    <Transition name="fade" appear>
-      <p v-if="showMore" class="scroll-prompt">Scroll to see more...</p>
-    </Transition>
+        <Transition name="fade" appear>
+          <p v-if="showLinkedIn" class="nameplate-link">
+            <a href="https://linkedin.com/in/bc2026" target="_blank" rel="noopener">LinkedIn</a>
+          </p>
+        </Transition>
+
+        <Transition name="fade" appear>
+          <p v-if="showResume" class="nameplate-link">
+            <a href="https://your-resume-link.pdf" target="_blank" rel="noopener">Resume</a>
+          </p>
+        </Transition>
+      </div>
+    </div>
+
+    <div v-if="showArrow" class="bounce-container absolute-arrow">
+      <Presence>
+        <BounceAnimation>
+          <img src="/arrow_down.png" width="12" height="12" />
+        </BounceAnimation>
+      </Presence>
+    </div>
   </div>
 </template>
+
 <style scoped>
-.nameplate-container {
+
+.dynamic-role {
+  font-style: italic;
+  color: white;
+  transition: opacity 0.5s ease;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.nameplate-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh; /* This is crucial! */
-  text-align: center;
 }
+
+
+.link-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.absolute-arrow {
+  position: absolute;
+  bottom: 2rem; /* distance from bottom */
+  left: 50%;     /* center horizontally */
+  transform: translateX(-50%); /* perfect horizontal centering */
+}
+
 
 .fade-enter-active,
 .fade-leave-active {

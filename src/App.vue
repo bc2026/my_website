@@ -103,7 +103,7 @@ html, body {
 
 
 .panel1 {
-  background-color: rgba(107, 105, 105, 0.5);
+  background-color: hwb(#FAF9F6)
 }
 .panel2 { background: rgba(99, 52, 47, 0.4); }
 .panel3 { background: rgba(18, 68, 39, 0.4); }
