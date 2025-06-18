@@ -77,7 +77,7 @@ onMounted(() => {
 
         <Transition name="fade" appear>
           <p v-if="showResume" class="nameplate-link">
-            <a href="https://your-resume-link.pdf" target="_blank" rel="noopener">Resume</a>
+            <a href="https://gitfront.io/r/bc2026/RNdNZKQyHzhE/Resumes/raw/2025/SWE_Resume_Summer_2025_Bentley.pdf" target="_blank" rel="noopener">Resume</a>
           </p>
         </Transition>
       </div>
