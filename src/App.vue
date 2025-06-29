@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import Panel1 from './components/Panel1.vue'
+import PerlinNoiseBackground from './components/Background.vue'
 // import ResumeItems from './components/ResumeItems.vue'
 // import { Analytics } from "@vercel/analytics/react"
 // import GlowingCursor from './components/GlowingCursor.vue'
@@ -29,6 +30,15 @@ onUnmounted(() => window.removeEventListener('mousemove', move))
 </script>
 
 <template>
+  <div id="app">
+    <PerlinNoiseBackground />
+    <!-- Your other application content here -->
+    <main class="relative z-10 p-8 text-white">
+      <h1 class="text-3xl font-bold">Welcome to my App!</h1>
+      <p>This is where your main application content goes, over the animated background.</p>
+    </main>
+
+
   <div class="frame-scroll">
     
     <!-- Background glow -->
@@ -59,6 +69,8 @@ onUnmounted(() => window.removeEventListener('mousemove', move))
     
 
   </div>
+  </div>
+
 </template>
 
 <style scoped>
