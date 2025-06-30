@@ -1,18 +1,14 @@
 <template>
   <div class="background-container" @mousemove="handleMouseMove" @mouseleave="handleMouseLeave">
-    <!-- Multiple blur layers for enhanced fuzziness -->
+    <!-- Simplified blur layers for better performance -->
     <div class="base-blur-layer"></div>
-    <div class="secondary-blur-layer"></div>
-    
-    <!-- Glass layer between background and noise -->
     <div class="glass-layer" :style="glassStyle"></div>
     
     <!-- Perlin Noise Background Canvas -->
     <canvas ref="canvasRef" class="noise-canvas"></canvas>
     
-    <!-- Additional blur overlays for enhanced fuzzy effect -->
+    <!-- Simplified overlay -->
     <div class="blur-overlay" :style="blurStyle"></div>
-    <div class="soft-blur-overlay"></div>
     
     <!-- Interactive cursor ripple -->
     <div class="cursor-ripple" :style="rippleStyle"></div>
@@ -28,10 +24,26 @@ const noise2D = createNoise2D();
 const animationFrameId = ref(null);
 const animationTime = ref(0);
 
-// Mouse tracking
+// Mouse tracking with throttling
 const mouseX = ref(0);
 const mouseY = ref(0);
 const mouseActive = ref(false);
+let lastMouseUpdate = 0;
+const mouseThrottle = 16; // ~60fps limit for mouse updates
+
+// Performance optimization flags
+const isLowPowerMode = ref(false);
+const frameSkipCounter = ref(0);
+
+// Performance monitoring
+const performanceMonitor = ref({
+  enabled: true,
+  frameCount: 0,
+  lastTime: 0,
+  avgFrameTime: 16.67, // Target 60fps
+  samples: [],
+  maxSamples: 60
+});
 
 // Pre-calculate pixel data array for better performance
 let imageData = null;
@@ -39,34 +51,56 @@ let data = null;
 let width = 0;
 let height = 0;
 
-// Reactive styles based on mouse position
-const glassStyle = computed(() => ({
-  background: `
-    linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.1) 100%),
-    radial-gradient(ellipse at ${mouseX.value}px ${mouseY.value}px, rgba(255,255,255,0.25) 0%, transparent 200px),
-    radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 50%)
-  `,
-  transform: mouseActive.value ? `translate(${(mouseX.value - window.innerWidth/2) * 0.02}px, ${(mouseY.value - window.innerHeight/2) * 0.02}px)` : 'none',
-  transition: mouseActive.value ? 'none' : 'transform 0.3s ease-out'
-}));
+// Detect if user is on a mobile device or low-power device
+const detectLowPowerMode = () => {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4;
+  return isMobile || isLowEnd;
+};
 
-const blurStyle = computed(() => ({
-  background: `radial-gradient(ellipse at ${mouseX.value}px ${mouseY.value}px, rgba(200,200,200,0.2) 0%, rgba(200,200,200,0.1) 50%, transparent 70%)`,
-}));
+// Reactive styles based on mouse position (simplified)
+const glassStyle = computed(() => {
+  if (isLowPowerMode.value) {
+    return {
+      background: 'rgba(255,255,255,0.1)',
+      transform: 'none'
+    };
+  }
+  
+  return {
+    background: `
+      linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%),
+      radial-gradient(ellipse at ${mouseX.value}px ${mouseY.value}px, rgba(255,255,255,0.15) 0%, transparent 200px)
+    `,
+    transform: mouseActive.value ? `translate(${(mouseX.value - window.innerWidth/2) * 0.01}px, ${(mouseY.value - window.innerHeight/2) * 0.01}px)` : 'none',
+    transition: mouseActive.value ? 'none' : 'transform 0.3s ease-out'
+  };
+});
+
+const blurStyle = computed(() => {
+  if (isLowPowerMode.value) return { background: 'transparent' };
+  
+  return {
+    background: `radial-gradient(ellipse at ${mouseX.value}px ${mouseY.value}px, rgba(200,200,200,0.1) 0%, transparent 300px)`,
+  };
+});
 
 const rippleStyle = computed(() => ({
   left: `${mouseX.value - 100}px`,
   top: `${mouseY.value - 100}px`,
-  opacity: mouseActive.value ? 0.6 : 0,
+  opacity: mouseActive.value ? (isLowPowerMode.value ? 0.3 : 0.6) : 0,
   transform: mouseActive.value ? 'scale(1)' : 'scale(0.5)',
 }));
 
-// Mouse event handlers
+// Throttled mouse event handlers
 const handleMouseMove = (e) => {
+  const now = Date.now();
+  if (now - lastMouseUpdate < mouseThrottle) return;
+  
   mouseX.value = e.clientX;
   mouseY.value = e.clientY;
   mouseActive.value = true;
+  lastMouseUpdate = now;
 };
 
 const handleMouseLeave = () => {
@@ -76,6 +110,38 @@ const handleMouseLeave = () => {
 const drawNoise = () => {
   const canvas = canvasRef.value;
   if (!canvas) return;
+
+  // Performance monitoring
+  const now = performance.now();
+  if (performanceMonitor.value.lastTime > 0) {
+    const frameTime = now - performanceMonitor.value.lastTime;
+    performanceMonitor.value.samples.push(frameTime);
+    
+    if (performanceMonitor.value.samples.length > performanceMonitor.value.maxSamples) {
+      performanceMonitor.value.samples.shift();
+    }
+    
+    // Check average performance every 60 frames
+    if (performanceMonitor.value.samples.length === performanceMonitor.value.maxSamples) {
+      const avgFrameTime = performanceMonitor.value.samples.reduce((a, b) => a + b) / performanceMonitor.value.maxSamples;
+      
+      // If average frame time > 25ms (less than 40fps), enable low power mode
+      if (avgFrameTime > 25 && !isLowPowerMode.value) {
+        console.log('Performance detected: Enabling low-power mode');
+        isLowPowerMode.value = true;
+      }
+    }
+  }
+  performanceMonitor.value.lastTime = now;
+
+  // Skip frames on low-power devices for better performance
+  if (isLowPowerMode.value) {
+    frameSkipCounter.value++;
+    if (frameSkipCounter.value % 3 !== 0) {
+      animationFrameId.value = requestAnimationFrame(drawNoise);
+      return;
+    }
+  }
 
   const ctx = canvas.getContext('2d');
   
@@ -87,79 +153,64 @@ const drawNoise = () => {
     data = imageData.data;
   }
 
-  // Animated parameters for dynamic movement
-  animationTime.value += 0.008;
+  // Slower animation for better performance
+  animationTime.value += isLowPowerMode.value ? 0.004 : 0.006;
   
-  // Multiple animation speeds and directions - all reduced
   const time = animationTime.value;
-  const primarySpeed = 0.0005;
-  const secondarySpeed = 0.0003;
+  const primarySpeed = 0.0003;
+  const secondarySpeed = 0.0002;
   
-  // Mouse influence on noise
-  const mouseInfluence = mouseActive.value ? 0.0001 : 0;
+  // Reduced mouse influence for better performance
+  const mouseInfluence = mouseActive.value ? 0.00005 : 0;
   const mouseOffsetX = mouseActive.value ? (mouseX.value - width/2) * mouseInfluence : 0;
   const mouseOffsetY = mouseActive.value ? (mouseY.value - height/2) * mouseInfluence : 0;
   
-  // Oscillating offsets for more organic movement - slower oscillations
-  const offsetX1 = Math.sin(time * 0.1) * 50 + time * primarySpeed + mouseOffsetX;
-  const offsetY1 = Math.cos(time * 0.12) * 30 + time * primarySpeed * 0.7 + mouseOffsetY;
-  const offsetX2 = Math.cos(time * 0.15) * 40 + time * secondarySpeed + mouseOffsetX * 0.5;
-  const offsetY2 = Math.sin(time * 0.18) * 25 + time * secondarySpeed * 0.8 + mouseOffsetY * 0.5;
+  // Simplified offsets
+  const offsetX1 = Math.sin(time * 0.08) * 30 + time * primarySpeed + mouseOffsetX;
+  const offsetY1 = Math.cos(time * 0.1) * 20 + time * primarySpeed * 0.7 + mouseOffsetY;
+  const offsetX2 = Math.cos(time * 0.12) * 25 + time * secondarySpeed + mouseOffsetX * 0.5;
+  const offsetY2 = Math.sin(time * 0.15) * 15 + time * secondarySpeed * 0.8 + mouseOffsetY * 0.5;
 
-  // Use medium pixel blocks for visible but smooth patterns
-  const blockSize = 3;
+  // Larger block size for better performance
+  const blockSize = isLowPowerMode.value ? 6 : 4;
   
   for (let y = 0; y < height; y += blockSize) {
     for (let x = 0; x < width; x += blockSize) {
-      // Calculate distance from mouse for interactive effects
+      // Simplified distance calculation
       const distanceFromMouse = mouseActive.value ? 
         Math.sqrt((x - mouseX.value) ** 2 + (y - mouseY.value) ** 2) : 1000;
-      const mouseEffect = Math.max(0, 1 - distanceFromMouse / 400); // Larger effect radius for fuzziness
+      const mouseEffect = Math.max(0, 1 - distanceFromMouse / 300);
       
-      // Layer 1: Large scale base patterns - more visible
-      const scale1 = 0.008 + mouseEffect * 0.002; // More detailed base patterns
+      // Reduced to 2 noise layers for better performance
+      const scale1 = 0.006 + mouseEffect * 0.001;
       const noise1 = noise2D(
         x * scale1 + offsetX1,
         y * scale1 + offsetY1
       );
       
-      // Layer 2: Medium detail patterns
-      const scale2 = 0.018 + mouseEffect * 0.005; // Increased for more visible detail
+      const scale2 = 0.015 + mouseEffect * 0.003;
       const noise2 = noise2D(
         x * scale2 + offsetX2,
         y * scale2 + offsetY2
       );
       
-      // Layer 3: Fine detail layer - more prominent
-      const scale3 = 0.035 + mouseEffect * 0.008; // Higher detail for obvious patterns
-      const noise3 = noise2D(
-        x * scale3 + time * 0.0008,
-        y * scale3 + time * 0.001
-      );
-      
-      // Combine multiple noise layers for more obvious animation
-      const combinedNoise = (
-        noise1 * 0.5 +      // Primary layer - reduced weight
-        noise2 * 0.35 +     // Detail layer - increased weight
-        noise3 * 0.15       // Fine detail layer - increased weight
-      );
-      
-      // Normalize and enhance the combined value
+      // Simplified noise combination
+      const combinedNoise = noise1 * 0.6 + noise2 * 0.4;
       const value = Math.max(0, Math.min(1, (combinedNoise + 1) * 0.5));
       
-      // Create more obvious, contrasted noise patterns
-      const baseIntensity = value * value * 160 + 20; // Higher contrast with squaring
-      const intensity = Math.floor(baseIntensity + mouseEffect * 40); // More dramatic brightening near mouse
-      const alpha = Math.floor(value * 140 + 80 + mouseEffect * 50); // Higher opacity for more visible patterns
+      // Simplified intensity calculation
+      const baseIntensity = value * 120 + 40;
+      const intensity = Math.floor(baseIntensity + mouseEffect * 30);
+      const alpha = Math.floor(value * 100 + 60 + mouseEffect * 40);
 
-      // Fill block for better performance
+      // Fill block
       for (let dy = 0; dy < blockSize && y + dy < height; dy++) {
         for (let dx = 0; dx < blockSize && x + dx < width; dx++) {
           const pixelIndex = ((y + dy) * width + (x + dx)) * 4;
-          data[pixelIndex + 0] = intensity; // Red
-          data[pixelIndex + 1] = intensity; // Green  
-          data[pixelIndex + 2] = intensity - 20; // Blue (warmer tone)
-          data[pixelIndex + 3] = alpha; // Alpha
+          data[pixelIndex + 0] = intensity;
+          data[pixelIndex + 1] = intensity;
+          data[pixelIndex + 2] = intensity - 15;
+          data[pixelIndex + 3] = alpha;
         }
       }
     }
@@ -173,8 +224,14 @@ const setCanvasDimensions = () => {
   const canvas = canvasRef.value;
   if (!canvas) return;
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // Use lower resolution on mobile devices
+  const pixelRatio = isLowPowerMode.value ? 1 : (window.devicePixelRatio || 1);
+  const rect = canvas.getBoundingClientRect();
+  
+  canvas.width = rect.width * pixelRatio;
+  canvas.height = rect.height * pixelRatio;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
 
   if (animationFrameId.value) {
     cancelAnimationFrame(animationFrameId.value);
@@ -188,8 +245,18 @@ const setCanvasDimensions = () => {
 };
 
 onMounted(() => {
+  isLowPowerMode.value = detectLowPowerMode();
   setCanvasDimensions();
   window.addEventListener('resize', setCanvasDimensions);
+  
+  // Add visibility change listener to pause animations when tab is not visible
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && animationFrameId.value) {
+      cancelAnimationFrame(animationFrameId.value);
+    } else if (!document.hidden) {
+      drawNoise();
+    }
+  });
 });
 
 onUnmounted(() => {
@@ -209,7 +276,6 @@ onUnmounted(() => {
   height: 100vh;
   z-index: -2;
   background: #ffffff;
-  /* Remove default cursor highlighting */
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -218,6 +284,7 @@ onUnmounted(() => {
   outline: none;
 }
 
+/* Simplified and optimized blur layers */
 .base-blur-layer {
   position: absolute;
   top: 0;
@@ -226,25 +293,10 @@ onUnmounted(() => {
   height: 100%;
   z-index: 0;
   background: 
-    radial-gradient(ellipse at 25% 25%, rgba(240,240,240,0.8) 0%, transparent 60%),
-    radial-gradient(ellipse at 75% 75%, rgba(245,245,245,0.6) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(250,250,250,0.4) 0%, transparent 70%);
-  backdrop-filter: blur(12px);
-  filter: blur(8px);
-}
-
-.secondary-blur-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0.5;
-  background: 
-    radial-gradient(circle at 20% 60%, rgba(248,248,248,0.5) 0%, transparent 40%),
-    radial-gradient(circle at 80% 40%, rgba(252,252,252,0.3) 0%, transparent 50%);
-  backdrop-filter: blur(10px);
-  filter: blur(6px);
+    radial-gradient(ellipse at 25% 25%, rgba(240,240,240,0.6) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 75%, rgba(245,245,245,0.4) 0%, transparent 50%);
+  backdrop-filter: blur(8px);
+  will-change: auto; /* Remove expensive will-change */
 }
 
 .glass-layer {
@@ -254,13 +306,9 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   z-index: 1;
-  background: 
-    linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 75%, rgba(255,255,255,0.12) 100%),
-    radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(255,255,255,0.12) 0%, transparent 50%);
-  backdrop-filter: blur(8px);
-  filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.2);
+  will-change: transform; /* Only animate transform */
 }
 
 .noise-canvas {
@@ -270,8 +318,8 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   z-index: 2;
-  opacity: 0.25;
-  filter: blur(6px);
+  opacity: 0.3;
+  filter: blur(3px);
   mix-blend-mode: soft-light;
 }
 
@@ -282,21 +330,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   z-index: 3;
-  backdrop-filter: blur(8px);
-}
-
-.soft-blur-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3.5;
-  background: 
-    radial-gradient(ellipse at center, rgba(255,255,255,0.05) 0%, transparent 80%),
-    linear-gradient(45deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 50%, rgba(255,255,255,0.02) 100%);
-  backdrop-filter: blur(8px);
-  filter: blur(5px);
+  backdrop-filter: blur(4px);
 }
 
 .cursor-ripple {
@@ -304,11 +338,58 @@ onUnmounted(() => {
   width: 200px;
   height: 200px;
   z-index: 4;
-  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 30%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
   mix-blend-mode: overlay;
-  filter: blur(3px);
+  filter: blur(2px);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .base-blur-layer {
+    backdrop-filter: blur(4px);
+  }
+  
+  .glass-layer {
+    backdrop-filter: blur(3px);
+  }
+  
+  .blur-overlay {
+    backdrop-filter: blur(2px);
+  }
+  
+  .noise-canvas {
+    opacity: 0.2;
+    filter: blur(2px);
+  }
+}
+
+/* Reduce effects on low-end devices */
+@media (max-width: 480px) {
+  .base-blur-layer {
+    backdrop-filter: blur(2px);
+    background: rgba(240,240,240,0.3);
+  }
+  
+  .glass-layer {
+    backdrop-filter: blur(1px);
+  }
+  
+  .blur-overlay {
+    backdrop-filter: none;
+  }
+  
+  .cursor-ripple {
+    display: none; /* Hide on small screens */
+  }
+}
+
+/* High refresh rate displays */
+@media (min-resolution: 120dpi) {
+  .noise-canvas {
+    image-rendering: optimizeSpeed;
+  }
 }
 </style>

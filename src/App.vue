@@ -10,17 +10,34 @@ const mouseX = ref(0)
 const mouseY = ref(0)
 const glowElement = ref(null)
 
+// Performance control
+const enableBackground = ref(true)
+const isVeryLowEnd = ref(false)
+
+// Detect very low-end devices
+const detectVeryLowEnd = () => {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  const isSlowDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency < 2
+  const hasLowMemory = navigator.deviceMemory && navigator.deviceMemory < 2
+  return (isMobile && isSlowDevice) || hasLowMemory
+}
+
 function move(e) {
   mouseX.value = e.clientX
   mouseY.value = e.clientY
   
-  if (glowElement.value) {
+  if (glowElement.value && enableBackground.value) {
     // Use transform for GPU acceleration - much faster than background changes
     glowElement.value.style.transform = `translate(${mouseX.value - 150}px, ${mouseY.value - 150}px)`
   }
 }
 
 onMounted(() => {
+  isVeryLowEnd.value = detectVeryLowEnd()
+  if (isVeryLowEnd.value) {
+    enableBackground.value = false // Disable background on very low-end devices
+  }
+  
   window.addEventListener('mousemove', move, { passive: true })
 })
 
@@ -31,12 +48,12 @@ onUnmounted(() => {
 
 <template>
   <div id="app">
-    <PerlinNoiseBackground />
+    <PerlinNoiseBackground v-if="enableBackground" />
     
     <div class="frame-scroll">
       
       <!-- Background glow -->
-      <div ref="glowElement" class="cursor-glow"></div>
+      <div v-if="enableBackground" ref="glowElement" class="cursor-glow"></div>
       <!-- GlowingCursor -->
       <!-- <GlowingCursor /> -->
       <!-- Analytics -->
@@ -46,7 +63,7 @@ onUnmounted(() => {
       <div class="content">
         <div class="wrapper">
         <!-- Frame 1 -->
-        <section class="panel panel1">
+        <section class="panel panel1" :class="{ 'no-background': !enableBackground }">
                     <Panel1 />
         </section>
         </div>
@@ -110,6 +127,8 @@ html, body {
   color: white;
   font-family: 'Montreal', 'MontrealRegular', 'montreal ts-regular', 'Montreal TS Regular', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   scroll-snap-align: start;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
 .panel1 {
@@ -122,6 +141,65 @@ header {
   line-height: 1.5;
 }
 
+/* Mobile-first responsive design */
+@media (max-width: 480px) {
+  .panel {
+    font-size: 1.8rem;
+    padding: 0 0.5rem;
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+  
+  .cursor-glow {
+    display: none; /* Hide cursor glow on small mobile devices */
+  }
+  
+  .frame-scroll {
+    height: 100vh;
+    height: 100dvh; /* Better mobile browser support */
+  }
+}
+
+@media (max-width: 768px) {
+  .panel {
+    font-size: 2rem;
+    padding: 0 0.75rem;
+  }
+  
+  .cursor-glow {
+    width: 200px;
+    height: 200px;
+    transform: translate(-100px, -100px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .panel {
+    font-size: 2.2rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-glow {
+    display: none; /* Hide cursor effects on touch devices */
+  }
+  
+  .panel {
+    /* Ensure content is touch-friendly */
+    touch-action: pan-y;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .panel {
+    font-size: 1.6rem;
+    padding: 1rem 0.5rem;
+  }
+}
+
+/* Large desktop screens */
 @media (min-width: 1024px) {
   header {
     display: flex;
@@ -134,5 +212,17 @@ header {
     place-items: flex-start;
     flex-wrap: wrap;
   }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .panel {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.no-background {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
 }
 </style>

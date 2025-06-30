@@ -16,6 +16,7 @@ body {
 #app {
   font-weight: normal;
   width: 100%;
+  min-height: 100vh;
 }
 
 a,
@@ -32,7 +33,9 @@ a,
   }
 }
 
-@media (min-width: 1024px) {
+/* Remove the problematic desktop grid layout */
+/* This was causing layout issues on mobile */
+/* @media (min-width: 1024px) {
   body {
     display: flex;
     place-items: center;
@@ -41,5 +44,29 @@ a,
   #app {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+} */
+
+/* Mobile-first responsive improvements */
+@media (max-width: 480px) {
+  html, body {
+    font-size: 14px; /* Slightly smaller base font size for small screens */
+  }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    font-size: 15px;
+  }
+}
+
+/* Ensure touch targets are appropriately sized */
+@media (hover: none) and (pointer: coarse) {
+  a {
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }

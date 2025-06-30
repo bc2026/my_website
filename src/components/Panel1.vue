@@ -66,6 +66,9 @@ onMounted(() => {
     }, 600)
   }, 5000)
 })
+
+// Add emit definition
+defineEmits(['toggleBackground'])
 </script>
 
 <template>
@@ -115,6 +118,15 @@ onMounted(() => {
             <img src="/arrow_down.png" width="12" height="12" />
           </BounceAnimation>
         </Presence>
+      </div>
+    </Transition>
+    
+    <!-- Performance toggle for users experiencing lag -->
+    <Transition name="slide-fade" appear>
+      <div v-if="showArrow" class="performance-toggle">
+        <button @click="$emit('toggleBackground')" class="toggle-btn" title="Toggle background effects for better performance">
+          ⚙️
+        </button>
       </div>
     </Transition>
   </div>
@@ -275,7 +287,74 @@ onMounted(() => {
   transform: translateX(-50%) translateY(-20px) scale(1.2);
 }
 
+/* Enhanced mobile responsive design */
+@media (max-width: 320px) {
+  /* Very small screens (iPhone SE, etc.) */
+  .nameplate-text {
+    font-size: 1.2rem;
+    margin: 0.5rem 0;
+  }
+
+  .nameplate-link {
+    font-size: 0.9rem;
+  }
+
+  .glass-backdrop {
+    padding: 1.5rem 1rem;
+    margin: 0 0.5rem;
+    border-radius: 16px;
+    max-width: calc(100vw - 1rem) !important;
+  }
+
+  .link-row {
+    gap: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nameplate-link a {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .absolute-arrow {
+    bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Small mobile screens */
+  .nameplate-text {
+    font-size: 1.4rem;
+    margin: 0.75rem 0;
+  }
+
+  .nameplate-link {
+    font-size: 1rem;
+  }
+
+  .glass-backdrop {
+    padding: 1.75rem 1.25rem;
+    margin: 0 0.75rem;
+    border-radius: 18px;
+    max-width: calc(100vw - 1.5rem) !important;
+  }
+
+  .link-row {
+    gap: 0.5rem;
+  }
+
+  .nameplate-link a {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .absolute-arrow {
+    bottom: 0.75rem;
+  }
+}
+
 @media (max-width: 600px) {
+  /* Medium mobile screens */
   .nameplate-text {
     font-size: 1.5rem;
   }
@@ -297,6 +376,108 @@ onMounted(() => {
     margin: 0 1rem;
     border-radius: 20px;
     max-width: calc(100vw - 2rem) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Large mobile screens and small tablets */
+  .nameplate-text {
+    font-size: 1.6rem;
+  }
+
+  .nameplate-link {
+    font-size: 1.1rem;
+  }
+
+  .glass-backdrop {
+    padding: 2.25rem 1.75rem;
+    margin: 0 1.25rem;
+    max-width: calc(100vw - 2.5rem) !important;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .nameplate-text {
+    font-size: 1.3rem;
+    margin: 0.4rem 0;
+  }
+
+  .glass-backdrop {
+    padding: 1.5rem 2rem;
+    max-width: 90vw !important;
+  }
+
+  .link-row {
+    margin-top: 0.5rem;
+  }
+
+  .absolute-arrow {
+    bottom: 0.5rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .nameplate-link a {
+    min-height: 44px; /* Minimum touch target size */
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+  }
+
+  .nameplate-link a:hover {
+    /* Remove hover effects on touch devices */
+    transform: none;
+    background: transparent;
+  }
+
+  .nameplate-link a:active {
+    /* Add active state for touch feedback */
+    transform: scale(0.98);
+    background: rgba(64, 224, 208, 0.15);
+  }
+}
+
+/* High DPI mobile displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .nameplate-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .glass-backdrop {
+    border-width: 1px; /* Thinner borders on high DPI */
+  }
+}
+
+/* Tablet portrait */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .nameplate-text {
+    font-size: 1.8rem;
+  }
+
+  .nameplate-link {
+    font-size: 1.2rem;
+  }
+
+  .glass-backdrop {
+    padding: 2.5rem 2rem;
+    max-width: 600px;
+  }
+}
+
+/* Tablet landscape */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .nameplate-text {
+    font-size: 1.6rem;
+  }
+
+  .glass-backdrop {
+    padding: 2rem;
+    max-width: 700px;
   }
 }
 </style>
