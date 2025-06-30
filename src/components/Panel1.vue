@@ -138,6 +138,10 @@ defineEmits(['toggleBackground'])
   text-align: center;
   max-width: 100vw;
   overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100%;
 }
 
 .glass-backdrop {
@@ -150,6 +154,7 @@ defineEmits(['toggleBackground'])
   padding: 2.5rem 2rem;
   margin: 0 auto;
   width: 100%;
+  max-width: 800px;
   position: relative;
   /* Enhanced inner highlight for glass effect with darker base */
   background-image: 
@@ -290,6 +295,10 @@ defineEmits(['toggleBackground'])
 /* Enhanced mobile responsive design */
 @media (max-width: 320px) {
   /* Very small screens (iPhone SE, etc.) */
+  .nameplate-container {
+    padding: 0.5rem;
+  }
+  
   .nameplate-text {
     font-size: 1.2rem;
     margin: 0.5rem 0;
@@ -301,9 +310,10 @@ defineEmits(['toggleBackground'])
 
   .glass-backdrop {
     padding: 1.5rem 1rem;
-    margin: 0 0.5rem;
+    margin: 0 auto;
     border-radius: 16px;
-    max-width: calc(100vw - 1rem) !important;
+    max-width: calc(100vw - 1rem);
+    width: calc(100vw - 1rem);
   }
 
   .link-row {
@@ -324,6 +334,10 @@ defineEmits(['toggleBackground'])
 
 @media (max-width: 480px) {
   /* Small mobile screens */
+  .nameplate-container {
+    padding: 0.75rem;
+  }
+  
   .nameplate-text {
     font-size: 1.4rem;
     margin: 0.75rem 0;
@@ -335,9 +349,10 @@ defineEmits(['toggleBackground'])
 
   .glass-backdrop {
     padding: 1.75rem 1.25rem;
-    margin: 0 0.75rem;
+    margin: 0 auto;
     border-radius: 18px;
-    max-width: calc(100vw - 1.5rem) !important;
+    max-width: calc(100vw - 1.5rem);
+    width: calc(100vw - 1.5rem);
   }
 
   .link-row {
@@ -373,9 +388,10 @@ defineEmits(['toggleBackground'])
 
   .glass-backdrop {
     padding: 2rem 1.5rem;
-    margin: 0 1rem;
+    margin: 0 auto;
     border-radius: 20px;
-    max-width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem);
+    width: calc(100vw - 2rem);
   }
 }
 
@@ -391,8 +407,9 @@ defineEmits(['toggleBackground'])
 
   .glass-backdrop {
     padding: 2.25rem 1.75rem;
-    margin: 0 1.25rem;
-    max-width: calc(100vw - 2.5rem) !important;
+    margin: 0 auto;
+    max-width: calc(100vw - 2.5rem);
+    width: calc(100vw - 2.5rem);
   }
 }
 
@@ -405,7 +422,9 @@ defineEmits(['toggleBackground'])
 
   .glass-backdrop {
     padding: 1.5rem 2rem;
-    max-width: 90vw !important;
+    margin: 0 auto;
+    max-width: 90vw;
+    width: 90vw;
   }
 
   .link-row {

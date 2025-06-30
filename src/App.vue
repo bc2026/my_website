@@ -145,9 +145,11 @@ header {
 @media (max-width: 480px) {
   .panel {
     font-size: 1.8rem;
-    padding: 0 0.5rem;
+    padding: 0;
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    justify-content: center;
+    align-items: center;
   }
   
   .cursor-glow {
@@ -163,7 +165,9 @@ header {
 @media (max-width: 768px) {
   .panel {
     font-size: 2rem;
-    padding: 0 0.75rem;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
   }
   
   .cursor-glow {
@@ -195,7 +199,9 @@ header {
 @media (max-width: 768px) and (orientation: landscape) {
   .panel {
     font-size: 1.6rem;
-    padding: 1rem 0.5rem;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
   }
 }
 
