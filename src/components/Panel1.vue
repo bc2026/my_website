@@ -67,8 +67,7 @@ onMounted(() => {
   }, 5000)
 })
 
-// Add emit definition
-defineEmits(['toggleBackground'])
+
 </script>
 
 <template>
@@ -118,15 +117,6 @@ defineEmits(['toggleBackground'])
             <img src="/arrow_down.png" width="12" height="12" />
           </BounceAnimation>
         </Presence>
-      </div>
-    </Transition>
-    
-    <!-- Performance toggle for users experiencing lag -->
-    <Transition name="slide-fade" appear>
-      <div v-if="showArrow" class="performance-toggle">
-        <button @click="$emit('toggleBackground')" class="toggle-btn" title="Toggle background effects for better performance">
-          ⚙️
-        </button>
       </div>
     </Transition>
   </div>
