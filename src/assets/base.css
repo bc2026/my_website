@@ -1,3 +1,94 @@
+/* Montreal Font Family */
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal Regular.otf') format('opentype'),
+       url('/fonts/Montreal Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal Oblique.otf') format('opentype'),
+       url('/fonts/Montreal Oblique.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal Light.otf') format('opentype'),
+       url('/fonts/Montreal Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal LightOblique.otf') format('opentype'),
+       url('/fonts/Montreal LightOblique.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal Medium.otf') format('opentype'),
+       url('/fonts/Montreal Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal MediumOblique.otf') format('opentype'),
+       url('/fonts/Montreal MediumOblique.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal Bold.otf') format('opentype'),
+       url('/fonts/Montreal Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal BoldOblique.otf') format('opentype'),
+       url('/fonts/Montreal BoldOblique.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal Thin.otf') format('opentype'),
+       url('/fonts/Montreal Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montreal';
+  src: url('/fonts/Montreal ThinOblique.otf') format('opentype'),
+       url('/fonts/Montreal ThinOblique.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
   --vt-c-white: #ffffff;
@@ -67,6 +158,10 @@ body {
     background-color 0.5s;
   line-height: 1.6;
   font-family:
+    'Montreal',
+    'MontrealRegular',
+    'montreal ts-regular',
+    'Montreal TS Regular',
     Inter,
     -apple-system,
     BlinkMacSystemFont,

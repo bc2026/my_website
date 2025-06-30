@@ -37,9 +37,8 @@
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
-    mix-blend-mode: difference;
-    box-shadow: 0 0 15px 5px rgba(0, 255, 255, 0.8);
-    transition: transform 0.05s linear;
+      mix-blend-mode: difference;
+  transition: transform 0.05s linear;
   }
   </style>
   

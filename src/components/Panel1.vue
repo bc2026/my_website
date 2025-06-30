@@ -19,20 +19,21 @@ let roleIndex = 0
 const show = ref(false)
 const showHi = ref(false)
 const showRole = ref(false)
+const showDynamicRole = ref(false)
 const showGitHub = ref(false)
 const showLinkedIn = ref(false)
 const showResume = ref(false)
 const showArrow = ref(false)
-const showDynamicRole = ref(true)
 
 onMounted(() => {
   show.value = true
-  setTimeout(() => (showHi.value = true), 1000)
-  setTimeout(() => (showRole.value = true), 3000)
-  setTimeout(() => (showGitHub.value = true), 3500)
-  setTimeout(() => (showLinkedIn.value = true), 4000)
-  setTimeout(() => (showResume.value = true), 4500)
-  setTimeout(() => (showArrow.value = true), 5000)
+  setTimeout(() => (showHi.value = true), 800)
+  setTimeout(() => (showRole.value = true), 1900)
+  setTimeout(() => (showDynamicRole.value = true), 2800)
+  setTimeout(() => (showGitHub.value = true), 3400)
+  setTimeout(() => (showLinkedIn.value = true), 3800)
+  setTimeout(() => (showResume.value = true), 4200)
+  setTimeout(() => (showArrow.value = true), 4800)
 
   setInterval(() => {
     showDynamicRole.value = false
@@ -40,56 +41,60 @@ onMounted(() => {
       roleIndex = (roleIndex + 1) % roles.length
       currentRole.value = roles[roleIndex]
       showDynamicRole.value = true
-    }, 3000)
-  }, 3000)
+    }, 600)
+  }, 5000)
 })
 </script>
 
 <template>
   <div class="nameplate-container">
-    <div class="nameplate-content">
-      <Transition name="fade" appear>
-        <h1 v-if="showHi" class="nameplate-text">Hi, I'm Bhagawat Chapagain.</h1>
-      </Transition>
-
-      <Transition name="fade" appear>
-        <h1 v-if="showRole" class="nameplate-text">a 20-year-old</h1>
-      </Transition>
-
-      <Transition name="fade" appear>
-  <h1 v-if="showRole" class="nameplate-text glow">
-    <span class="dynamic-role">{{ currentRole }}</span>
-  </h1>
-</Transition>
-
-      <div v-if="showGitHub || showLinkedIn || showResume" class="link-row">
-        <Transition name="fade" appear>
-          <p v-if="showGitHub" class="nameplate-link">
-            <a href="https://github.com/bc2026" target="_blank" rel="noopener">GitHub</a>
-          </p>
+    <div class="glass-backdrop">
+      <div class="nameplate-content">
+        <Transition name="slide-fade" appear>
+          <h1 v-if="showHi" class="nameplate-text">Hi, I'm Bhagawat Chapagain.</h1>
         </Transition>
 
-        <Transition name="fade" appear>
-          <p v-if="showLinkedIn" class="nameplate-link">
-            <a href="https://linkedin.com/in/bc2026" target="_blank" rel="noopener">LinkedIn</a>
-          </p>
+        <Transition name="slide-fade" appear>
+          <h1 v-if="showRole" class="nameplate-text">a 20-year-old</h1>
         </Transition>
 
-        <Transition name="fade" appear>
-          <p v-if="showResume" class="nameplate-link">
-            <a href="https://gitfront.io/r/bc2026/RNdNZKQyHzhE/Resumes/raw/2025/SWE_Resume_Summer_2025_Bentley.pdf" target="_blank" rel="noopener">Resume</a>
-          </p>
+        <Transition name="slide-fade-scale" appear>
+          <h1 v-if="showDynamicRole" class="nameplate-text glow">
+            <span class="dynamic-role">{{ currentRole }}</span>
+          </h1>
         </Transition>
+
+        <div v-if="showGitHub || showLinkedIn || showResume" class="link-row">
+          <Transition name="slide-fade-stagger" appear>
+            <p v-if="showGitHub" class="nameplate-link">
+              <a href="https://github.com/bc2026" target="_blank" rel="noopener">GitHub</a>
+            </p>
+          </Transition>
+
+          <Transition name="slide-fade-stagger" appear>
+            <p v-if="showLinkedIn" class="nameplate-link" style="transition-delay: 0.1s;">
+              <a href="https://linkedin.com/in/bc2026" target="_blank" rel="noopener">LinkedIn</a>
+            </p>
+          </Transition>
+
+          <Transition name="slide-fade-stagger" appear>
+            <p v-if="showResume" class="nameplate-link" style="transition-delay: 0.2s;">
+              <a href="https://gitfront.io/r/bc2026/RNdNZKQyHzhE/Resumes/raw/2025/SWE_Resume_Summer_2025_Bentley.pdf" target="_blank" rel="noopener">Resume</a>
+            </p>
+          </Transition>
+        </div>
       </div>
     </div>
 
-    <div v-if="showArrow" class="bounce-container absolute-arrow">
-      <Presence>
-        <BounceAnimation>
-          <img src="/arrow_down.png" width="12" height="12" />
-        </BounceAnimation>
-      </Presence>
-    </div>
+    <Transition name="bounce-fade" appear>
+      <div v-if="showArrow" class="bounce-container absolute-arrow">
+        <Presence>
+          <BounceAnimation>
+            <img src="/arrow_down.png" width="12" height="12" />
+          </BounceAnimation>
+        </Presence>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -101,11 +106,30 @@ onMounted(() => {
   overflow-x: hidden;
 }
 
+.glass-backdrop {
+  background: 
+    linear-gradient(135deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%),
+    rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 2.5rem 2rem;
+  margin: 0 auto;
+  max-width: 600px;
+  position: relative;
+  /* Enhanced inner highlight for glass effect with darker base */
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
+    linear-gradient(225deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
+  /* Add subtle outer glow for definition */
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.2));
+}
+
 .nameplate-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0;
 }
 
 .nameplate-text {
@@ -113,15 +137,13 @@ onMounted(() => {
   font-weight: bold;
   margin: 1rem 0;
   color: white;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
   word-break: break-word;
 }
 
 .dynamic-role {
   font-style: italic;
   color: white;
-  transition: opacity 0.5s ease;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .link-row {
@@ -135,7 +157,18 @@ onMounted(() => {
 .nameplate-link {
   font-size: 1.25rem;
   color: turquoise;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.nameplate-link a {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+.nameplate-link a:hover {
+  transform: translateY(-2px);
+  background: rgba(64, 224, 208, 0.1);
 }
 
 .bounce-container {
@@ -149,17 +182,68 @@ onMounted(() => {
   transform: translateX(-50%);
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1000ms ease;
+/* Enhanced slide-fade animation */
+.slide-fade-enter-active {
+  transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-.fade-enter-from,
-.fade-leave-to {
+.slide-fade-leave-active {
+  transition: all 0.9s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+.slide-fade-enter-from {
   opacity: 0;
+  transform: translateY(30px);
 }
-.fade-enter-to,
-.fade-leave-from {
-  opacity: 1;
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Enhanced slide-fade with scale for dynamic role */
+.slide-fade-scale-enter-active {
+  transition: all 1.0s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.slide-fade-scale-leave-active {
+  transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.slide-fade-scale-enter-from {
+  opacity: 0;
+  transform: translateY(20px) scale(0.95);
+}
+.slide-fade-scale-leave-to {
+  opacity: 0;
+  transform: translateY(-15px) scale(1.05);
+}
+
+/* Staggered animation for links */
+.slide-fade-stagger-enter-active {
+  transition: all 1.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.slide-fade-stagger-leave-active {
+  transition: all 0.8s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+}
+.slide-fade-stagger-enter-from {
+  opacity: 0;
+  transform: translateY(25px) scale(0.9);
+}
+.slide-fade-stagger-leave-to {
+  opacity: 0;
+  transform: translateY(-15px) scale(1.1);
+}
+
+/* Bounce-fade animation for arrow */
+.bounce-fade-enter-active {
+  transition: all 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.bounce-fade-leave-active {
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.bounce-fade-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(30px) scale(0.8);
+}
+.bounce-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px) scale(1.2);
 }
 
 @media (max-width: 600px) {
@@ -178,6 +262,11 @@ onMounted(() => {
   .link-row {
     gap: 0.75rem;
   }
-}
 
+  .glass-backdrop {
+    padding: 2rem 1.5rem;
+    margin: 0 1rem;
+    border-radius: 20px;
+  }
+}
 </style>

@@ -1,74 +1,68 @@
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Panel1 from './components/Panel1.vue'
 import PerlinNoiseBackground from './components/Background.vue'
 // import ResumeItems from './components/ResumeItems.vue'
 // import { Analytics } from "@vercel/analytics/react"
 // import GlowingCursor from './components/GlowingCursor.vue'
 
-const x = ref(0)
-const y = ref(0)
-
-const bgStyle = computed(() => ({
-  background: `radial-gradient(circle at ${x.value}px ${y.value}px, rgba(0,255,255,0.1), transparent 150px)`,
-  transition: 'background 0.05s',
-  width: '100vw',
-  height: '100vh',
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  zIndex: -1,
-}))
+const mouseX = ref(0)
+const mouseY = ref(0)
+const glowElement = ref(null)
 
 function move(e) {
-  x.value = e.clientX
-  y.value = e.clientY
+  mouseX.value = e.clientX
+  mouseY.value = e.clientY
+  
+  if (glowElement.value) {
+    // Use transform for GPU acceleration - much faster than background changes
+    glowElement.value.style.transform = `translate(${mouseX.value - 150}px, ${mouseY.value - 150}px)`
+  }
 }
 
-onMounted(() => window.addEventListener('mousemove', move))
-onUnmounted(() => window.removeEventListener('mousemove', move))
+onMounted(() => {
+  window.addEventListener('mousemove', move, { passive: true })
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', move)
+})
 </script>
 
 <template>
   <div id="app">
     <PerlinNoiseBackground />
-    <!-- Your other application content here -->
-    <main class="relative z-10 p-8 text-white">
-      <h1 class="text-3xl font-bold">Welcome to my App!</h1>
-      <p>This is where your main application content goes, over the animated background.</p>
-    </main>
-
-
-  <div class="frame-scroll">
     
-    <!-- Background glow -->
-    <div :style="bgStyle"></div>
-    <!-- GlowingCursor -->
-    <!-- <GlowingCursor /> -->
-    <!-- Analytics -->
-    <!-- <Analytics/> -->
-    
+    <div class="frame-scroll">
+      
+      <!-- Background glow -->
+      <div ref="glowElement" class="cursor-glow"></div>
+      <!-- GlowingCursor -->
+      <!-- <GlowingCursor /> -->
+      <!-- Analytics -->
+      <!-- <Analytics/> -->
+      
 
-    <div class="content">
-      <div class="wrapper">
-      <!-- Frame 1 -->
-      <section class="panel panel1">
-                  <Panel1 />
-      </section>
-      </div>
+      <div class="content">
+        <div class="wrapper">
+        <!-- Frame 1 -->
+        <section class="panel panel1">
+                    <Panel1 />
+        </section>
+        </div>
 
-      <div class="wrapper">
-      <!-- Frame 2 -->
-      <section class="panel panel2">
-            <h3 style="text-align: center">Projects</h3>
-      <!-- Frame 2 End -->
-       </section>
+        <div class="wrapper">
+        <!-- Frame 2 -->
+        <section class="panel panel2">
+              <h3 style="text-align: center">Projects</h3>
+        <!-- Frame 2 End -->
+         </section>
+        </div>
+
       </div>
+      
 
     </div>
-    
-
-  </div>
   </div>
 
 </template>
@@ -89,11 +83,18 @@ html, body {
   overflow-x: hidden;
 }
 
-.frame-scroll > div[style] {
-  position: fixed !important; /* important to stay behind scroll content */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 300px;
   z-index: -1;
+  background: radial-gradient(circle, rgba(0,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
+  will-change: transform;
+  transform: translate(-150px, -150px);
 }
-
 
 .content {
   width: 100%;
@@ -107,19 +108,15 @@ html, body {
   align-items: center;
   font-size: 2.5rem;
   color: white;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  font-family: 'Montreal', 'MontrealRegular', 'montreal ts-regular', 'Montreal TS Regular', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   scroll-snap-align: start;
 }
-
-
 
 .panel1 {
   background-color: hwb(#FAF9F6)
 }
 .panel2 { background: rgba(99, 52, 47, 0.4); }
 .panel3 { background: rgba(18, 68, 39, 0.4); }
-
 
 header {
   line-height: 1.5;
