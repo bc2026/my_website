@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Presence } from '@motionone/vue'
 import BounceAnimation from './BounceAnimation.vue'
 import VueGlow from 'vue-glow';
@@ -15,6 +15,23 @@ const roles = [
 
 const currentRole = ref(roles[0])
 let roleIndex = 0
+const isTransitioning = ref(false)
+
+// Compute dynamic width based on role length
+const dynamicGlassStyle = computed(() => {
+  const roleLength = currentRole.value.length
+  let dynamicWidth = Math.max(500, Math.min(700, roleLength * 18 + 350))
+  
+  return {
+    maxWidth: `${dynamicWidth}px`,
+    transform: isTransitioning.value ? 'scale(1.02)' : 'scale(1)',
+    borderColor: isTransitioning.value ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)',
+    background: isTransitioning.value 
+      ? `linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%), rgba(0, 0, 0, 0.22)`
+      : `linear-gradient(135deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.15) 100%), rgba(0, 0, 0, 0.18)`,
+    transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+  }
+})
 
 const show = ref(false)
 const showHi = ref(false)
@@ -36,11 +53,16 @@ onMounted(() => {
   setTimeout(() => (showArrow.value = true), 4800)
 
   setInterval(() => {
+    isTransitioning.value = true
     showDynamicRole.value = false
     setTimeout(() => {
       roleIndex = (roleIndex + 1) % roles.length
       currentRole.value = roles[roleIndex]
       showDynamicRole.value = true
+      // Reset transition state after role appears
+      setTimeout(() => {
+        isTransitioning.value = false
+      }, 300)
     }, 600)
   }, 5000)
 })
@@ -48,7 +70,7 @@ onMounted(() => {
 
 <template>
   <div class="nameplate-container">
-    <div class="glass-backdrop">
+    <div class="glass-backdrop" :style="dynamicGlassStyle">
       <div class="nameplate-content">
         <Transition name="slide-fade" appear>
           <h1 v-if="showHi" class="nameplate-text">Hi, I'm Bhagawat Chapagain.</h1>
@@ -115,7 +137,7 @@ onMounted(() => {
   border: 2px solid rgba(255, 255, 255, 0.2);
   padding: 2.5rem 2rem;
   margin: 0 auto;
-  max-width: 600px;
+  width: 100%;
   position: relative;
   /* Enhanced inner highlight for glass effect with darker base */
   background-image: 
@@ -123,6 +145,13 @@ onMounted(() => {
     linear-gradient(225deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
   /* Add subtle outer glow for definition */
   filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.2));
+  /* Smooth transitions for all animatable properties */
+  transition: 
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    max-width 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.3s ease,
+    border-color 0.3s ease,
+    filter 0.3s ease;
 }
 
 .nameplate-content {
@@ -267,6 +296,7 @@ onMounted(() => {
     padding: 2rem 1.5rem;
     margin: 0 1rem;
     border-radius: 20px;
+    max-width: calc(100vw - 2rem) !important;
   }
 }
 </style>
