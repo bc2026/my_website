@@ -54,7 +54,7 @@ export const projectDetails: ProjectDetail[] = [
     ],
     demo: {
       type: 'video-embed',
-      src: 'https://video.oakstone.dev.ebix.com/embed/1be68b3f-3772-4375-ab23-08e44cf896d1?panels=*&from=portal',
+      src: 'https://video.oakstone.dev.ebix.com/embed/d4b39b85-2212-4cd4-8218-3328e970b97d?panels=*&from=portal',
       title: 'Oakstone Smart Video Tool demo',
     },
   },
