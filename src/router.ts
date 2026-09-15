@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from './pages/Home.vue'
-import OakstoneDemo from './pages/projects/OakstoneDemo.vue'
+import ProjectDetailPage from './pages/projects/ProjectDetailPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: Home },
-    { path: '/oakstone-smart-video-tool-demo', component: OakstoneDemo },
+    { path: '/projects/:slug', component: ProjectDetailPage },
+    { path: '/oakstone-smart-video-tool-demo', redirect: '/projects/oakstone' },
   ],
 })
 
